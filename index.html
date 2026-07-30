@@ -164,7 +164,6 @@
             </p>
 
             <pre class="file-tree">src/data/
-├── actions.js           현재 강아지가 사용하는 큰 행동 메뉴
 └── pets/
     ├── dog.js           강아지의 이미지 경로, 문구, 행동 설정
     └── index.js         선택 화면과 게임에 사용할 동물 등록
@@ -173,6 +172,13 @@ public/assets/
 └── animals/
     └── dog/
         ├── pet.webp                         선택 화면과 집에서 보이는 기본 강아지
+        ├── menu/                            큰 행동 버튼 그림
+        │   ├── feed.webp                    먹이주기 버튼
+        │   ├── play.webp                    놀아주기 버튼
+        │   ├── walk.webp                    산책하기 버튼
+        │   └── petting.webp                 쓰다듬기 버튼
+        ├── tools/                           상호작용 중 움직이는 그림
+        │   └── hand.webp                    쓰다듬을 때 움직이는 손
         ├── actions/                         행동 중인 강아지
         │   ├── eating-water.webp            물을 마시는 강아지
         │   ├── eating-food.webp             사료를 먹는 강아지
@@ -208,16 +214,20 @@ public/assets/
             <h3>4-1. 새 동물 이미지 폴더 만들기</h3>
             <ol>
               <li><code>public/assets/animals</code> 안에 새 동물의 영문 이름(한 단어)으로 폴더를 만든다.</li>
-              <li>새 동물 폴더 안에 <code>actions</code>, <code>backgrounds</code>, <code>items</code> 폴더를 만든다.</li>
-              <li>동물의 기본 모습은 새 동물 폴더에 넣는다.</li>
-              <li>각 행동에서 사용할 동물 이미지는 <code>actions</code>에 넣는다.</li>
+              <li>새 동물 폴더 안에 <code>menu</code>, <code>tools</code>, <code>actions</code>, <code>backgrounds</code>, <code>items</code> 폴더를 만든다.</li>
+              <li>동물의 기본 모습은 <code>pet.webp</code>라는 이름으로 새 동물 폴더에 넣는다.</li>
+              <li>큰 행동 버튼 그림은 <code>menu</code>에 넣는다.</li>
+              <li>마우스나 터치로 움직이는 그림은 <code>tools</code>에 넣는다.</li>
+              <li>행동 중인 동물 이미지는 <code>actions</code>에 넣는다.</li>
               <li>집과 각 활동의 장소 이미지는 <code>backgrounds</code>에 넣는다.</li>
               <li>세부 선택 버튼에 표시할 이미지는 <code>items</code>에 넣는다.</li>
             </ol>
 
             <aside class="callout mint">
               <strong>주의사항</strong>
-              모든 이미지는 <code>WebP(.webp)</code> 형식으로 준비한다. 파일명은 동물의 행동과 선택지에 맞춰 영문 소문자와 하이픈으로 정하고, 동물 설정 파일의 이미지 경로에도 같은 파일명을 입력한다.
+              ChatGPT에서 이미지를 생성할 때는 “배경을 제거한 PNG 이미지로 만들어 주세요”라고 입력한다. 생성한 PNG 파일은
+              <a href="https://convertio.co/kr/png-webp/" target="_blank" rel="noreferrer">Convertio PNG→WebP 변환</a>에서
+              <code>WebP(.webp)</code> 형식으로 변환한다. <code>menu</code>, <code>tools</code>, <code>actions</code>, <code>items</code>에 넣는 그림은 그림 바깥의 불필요한 투명 여백을 잘라낸다. 파일명은 동물의 행동과 선택지에 맞춰 영문 소문자와 하이픈으로 정하고, 동물 설정 파일의 이미지 경로에도 같은 파일명을 입력한다.
             </aside>
           </div>
 
@@ -232,8 +242,13 @@ public/assets/
 
             <h4 class="setting-step">(2) 아래 코드로 파일 전체 교체</h4>
             <p>
-              큰 행동 3개와 각 행동의 선택지 4개가 들어 있는 공용 템플릿이다.
+              큰 행동 4개가 들어 있는 공용 템플릿이다. 첫 번째부터 세 번째 행동에는 각각 세부 선택지 4개가 있고,
+              네 번째 행동은 세부 선택 없이 집 배경과 동물의 기본 모습을 유지한 채 10초 동안 바로 진행된다.
               상호작용 방식과 순서는 수정하지 않고, 화살표가 표시된 이름, 문구, ID, 이미지 경로만 변경한다.
+            </p>
+            <p>
+              큰 행동과 세부 선택지 옆의 스피커 버튼을 누르면 해당 항목의 <code>name</code>이 음성으로 재생된다.
+              <code>requests</code>의 <code>before</code>, <code>highlight</code>, <code>after</code>를 합친 부탁 문구는 화면에 나타날 때 자동으로 재생되고, 문구 옆의 스피커 버튼을 누르면 다시 들을 수 있다. 별도의 음성 파일은 필요하지 않다.
             </p>
             <div class="code-block code-block--large">
               <button class="copy-button" type="button">복사</button>
@@ -242,10 +257,26 @@ public/assets/
 
 const catActions = [ // cat을 새 동물의 영문 이름으로 변경
   //  ↑ 새 동물 이름으로 변경
-  { id: "cat-action-1", name: "첫 번째 큰 행동 버튼 문구 입력" }, // cat을 새 동물의 영문 이름으로 변경
-  //       ↑ 새 동물용 ID로 변경       ↑ 버튼에 표시할 문구 입력
-  { id: "cat-action-2", name: "두 번째 큰 행동 버튼 문구 입력" }, // cat을 새 동물의 영문 이름으로 변경
-  { id: "cat-action-3", name: "세 번째 큰 행동 버튼 문구 입력" }, // cat을 새 동물의 영문 이름으로 변경
+  {
+    id: "cat-action-1", // cat을 새 동물의 영문 이름으로 변경
+    name: "첫 번째 큰 행동 버튼 문구 입력",
+    image: catAsset("menu/첫번째-큰-행동-버튼-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
+  },
+  {
+    id: "cat-action-2", // cat을 새 동물의 영문 이름으로 변경
+    name: "두 번째 큰 행동 버튼 문구 입력",
+    image: catAsset("menu/두번째-큰-행동-버튼-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
+  },
+  {
+    id: "cat-action-3", // cat을 새 동물의 영문 이름으로 변경
+    name: "세 번째 큰 행동 버튼 문구 입력",
+    image: catAsset("menu/세번째-큰-행동-버튼-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
+  },
+  {
+    id: "cat-action-4", // cat을 새 동물의 영문 이름으로 변경
+    name: "네 번째 큰 행동 버튼 문구 입력",
+    image: catAsset("menu/네번째-큰-행동-버튼-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
+  },
 ];
 
 const activities = {
@@ -372,6 +403,15 @@ const activities = {
       },
     ],
   },
+
+  "cat-action-4": { // cat을 새 동물의 영문 이름으로 변경
+    interaction: "pet-timer",
+    // 상호작용 방식 고정: 세부 선택 없이 10초 동안 도구를 움직임
+    duration: 10,
+    instruction: "상호작용하는 동안 표시할 안내 문구 입력",
+    toolImage: catAsset("tools/움직이는-도구-이미지-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
+    reaction: "10초 상호작용이 끝난 뒤 표시할 문구 입력",
+  },
 };
 
 const requests = [
@@ -461,6 +501,14 @@ const requests = [
     highlight: "강조색으로 표시할 핵심 문구 입력",
     after: "강조 문구 뒤에 표시할 내용 입력",
   },
+  {
+    activityId: "cat-action-4", // cat을 새 동물의 영문 이름으로 변경
+    optionId: null,
+    // 네 번째 행동에는 세부 선택지가 없으므로 null 유지
+    before: "강조 문구 앞에 표시할 내용 입력",
+    highlight: "강조색으로 표시할 핵심 문구 입력",
+    after: "강조 문구 뒤에 표시할 내용 입력",
+  },
 ];
 
 export const cat = { // cat을 새 동물의 영문 이름으로 변경
@@ -468,9 +516,8 @@ export const cat = { // cat을 새 동물의 영문 이름으로 변경
   id: "cat", // cat을 새 동물의 영문 이름으로 변경
   //   ↑ 새 동물의 영문 ID로 변경
   name: "화면에 표시할 동물 이름 입력",
-  selectionImage: catAsset("기본-이미지-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
-  //             ↑ 새 동물 이름으로 변경  ↑ 실제 파일명 입력
-  defaultImage: catAsset("기본-이미지-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
+  selectionImage: catAsset("pet.webp"), // cat을 새 동물의 영문 이름으로 변경
+  defaultImage: catAsset("pet.webp"), // cat을 새 동물의 영문 이름으로 변경
   homeBackground: catAsset("backgrounds/집-배경-파일명.webp"), // cat을 새 동물의 영문 이름으로 변경
   available: true,
   actions: catActions, // cat을 새 동물의 영문 이름으로 변경
@@ -485,13 +532,17 @@ export const cat = { // cat을 새 동물의 영문 이름으로 변경
               <ul>
                 <li>동물의 영문 이름은 <code>cat</code>, <code>snail</code>처럼 영문 소문자 한 단어로 정한다.</li>
                 <li>코드의 <code>cat</code>은 주석이 붙은 모든 줄에서 빠짐없이 같은 영문 이름으로 변경한다.</li>
-                <li>큰 행동 ID는 영문 이름 뒤의 <code>-action-1</code>, <code>-action-2</code>, <code>-action-3</code> 부분을 그대로 유지한다.</li>
+                <li>큰 행동 ID는 영문 이름 뒤의 <code>-action-1</code>부터 <code>-action-4</code>까지의 번호를 그대로 유지한다.</li>
                 <li>세부 행동 ID는 <code>-option-1</code>부터 <code>-option-4</code>까지의 번호를 그대로 유지한다.</li>
                 <li><code>dogActions</code>가 아니라 예시의 <code>catActions</code>처럼 동물 이름과 <code>Actions</code>를 붙여 쓴다.</li>
                 <li>따옴표 안에 ‘입력’이라고 적힌 문구와 이미지 파일명은 새 동물에 맞게 모두 변경한다.</li>
                 <li>이미지는 모두 <code>WebP(.webp)</code> 형식으로 넣고, 이미지 경로의 폴더명, 파일명, 확장자와 실제 파일의 이름을 정확히 같게 입력한다.</li>
-                <li>큰 행동 3개, 각 행동의 세부 선택지 4개와 현재 순서는 추가하거나 삭제하지 않는다.</li>
-                <li><code>interaction</code>, <code>instant</code>, <code>place</code>, <code>drag-timer</code>, <code>completionDelay</code>, <code>duration</code>, <code>available</code>은 변경하지 않는다.</li>
+                <li>버튼과 상호작용에 사용하는 투명 이미지는 그림 바깥의 불필요한 투명 여백을 제거한 뒤 넣는다.</li>
+                <li><code>menu</code>의 큰 행동 버튼 파일명은 <code>catActions</code>의 <code>image</code> 경로와 같게 입력한다.</li>
+                <li><code>tools</code>의 상호작용 그림 파일명은 네 번째 행동의 <code>toolImage</code> 경로와 같게 입력한다.</li>
+                <li>큰 행동 4개를 유지한다. 첫 번째부터 세 번째 행동은 세부 선택지 4개를 유지하고, 네 번째 행동에는 세부 선택지를 만들지 않는다.</li>
+                <li><code>interaction</code>, <code>instant</code>, <code>place</code>, <code>drag-timer</code>, <code>pet-timer</code>, <code>completionDelay</code>, <code>duration</code>, <code>available</code>은 변경하지 않는다.</li>
+                <li>네 번째 행동의 <code>optionId: null</code>은 변경하지 않는다.</li>
                 <li><code>activities</code>, <code>requests</code>, <code>options</code>, <code>activityId</code>, <code>optionId</code> 같은 항목 이름은 변경하지 않는다.</li>
                 <li>중괄호, 대괄호, 소괄호, 쉼표, 따옴표, 콜론은 삭제하거나 옮기지 않는다.</li>
               </ul>
